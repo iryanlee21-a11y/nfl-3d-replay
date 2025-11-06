@@ -1,0 +1,18 @@
+# NFL 3D Replay Project 🏈
+
+## 🎯 Goal
+Recreate one NFL play in 3D and let users view it from player POVs (QB, RB, etc.) in Unity.
+
+## 🔍 Key Objectives
+- Detect & track players from video (Python/CV)
+- Convert 2D pixel coordinates → 3D field coordinates
+- Visualize motion in Unity and attach POV cameras
+- Provide replay controls and switch player views
+
+## ⚙️ Stack
+Unity (URP), C#, Python, OpenCV, YOLO, DeepSORT, GitHub
+
+## 📅 Plan (High-level)
+- Weeks 1–4: Setup & data pipeline
+- Weeks 5–12: Tracking & 3D mapping
+- Weeks 13–24: Unity integration, POV, polish

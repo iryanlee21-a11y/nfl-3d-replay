@@ -1,0 +1,9 @@
+# Tech Stack
+
+| Category | Tool | Purpose |
+|---|---|---|
+| Engine | Unity (URP) | 3D visualization & cameras |
+| Data | Python, OpenCV, Pandas | Video parsing & preprocessing |
+| CV/ML | YOLOv8, DeepSORT | Detection & tracking |
+| 3D | Blender (optional) | Field/model prep |
+| Control | Git, GitHub | Versioning & docs |

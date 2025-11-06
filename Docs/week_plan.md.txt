@@ -1,0 +1,10 @@
+# Week Plan (v0.1)
+
+| Week | Goal | Tasks |
+|---|---|---|
+| 1 | Project setup | Unity scene, prefabs, docs, repo |
+| 2 | Detection/Tracking | YOLO+DeepSORT pipeline, CSV export |
+| 3 | Pose (opt.) | Head/pose estimation for POV |
+| 4 | Mapping | Homography: pixel→field coords |
+| 5-6 | Unity playback | JSON loader, timeline, interpolation |
+| 7+ | POV polish | Camera switch UI, post-effects |
