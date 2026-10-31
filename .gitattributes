@@ -1,0 +1,7 @@
+# Unity가 생성하는 YAML 파일은 언어 통계에서 제외 (레포 언어가 C# / Python으로 표시되도록)
+*.unity linguist-generated
+*.prefab linguist-generated
+*.asset linguist-generated
+*.mat linguist-generated
+*.meta linguist-generated
+*.inputactions linguist-generated

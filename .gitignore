@@ -100,3 +100,18 @@ InitTestScene*.unity*
 
 # Python virtual environment
 python/venv/
+# ---- nfl-3d-replay ----
+# 원본 영상 (저작권) / 모델 가중치 (ultralytics가 자동으로 내려받음)
+*.mp4
+*.mov
+*.pt
+# 중간 산출물·실험 결과
+runs/
+python/data/field_tracks_raw.csv
+python/experiments/*.csv
+# 에디터·버전관리 도구 설정
+.idea/
+.vscode/
+.plastic/
+ignore.conf
+__pycache__/
