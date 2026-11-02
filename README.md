@@ -110,9 +110,19 @@ python scripts/06_make_gifs.py
 3. ByteTrack 추적 + 카메라 움직임 누적 보정 + 경기장 규격 기반 좌표 변환으로 재구성. 옆에서 찍은 중계 영상(데릭 헨리 터치다운 런)에서는 사이드라인에 서 있는 사람들의 좌표가 점점 밀리는 것으로 보정 오차 누적을 확인했고, 처음 6.7초만 변환할 수 있었음
 4. 카메라가 높은 곳에서 덜 움직이는 영상으로 바꾸고, 카메라 보정에 경기장 바닥 특징점만 쓰고, 경기장 기준점을 자동으로 찾도록 개선 → 스냅부터 터치다운까지 플레이 전체 변환
 
+<details>
+<summary>이전 버전 결과 보기 (데릭 헨리 영상)</summary>
+
+![v1 topdown](media/v1_derrick_henry_topdown.gif)
+
+옆에서 찍은 일반 중계 화면에서는 처음 6.7초만 경기장 좌표로 변환할 수 있었습니다. 카메라가 러닝백을 바짝 확대하면 경기장 표시가 거의 사라지고 특징점이 사이드라인의 사람들에게 잡혀, 7.7초 무렵에는 서 있는 사람들이 경기장 밖 12~16야드로 계산될 만큼 오차가 쌓였습니다. 프레임 간 보정을 누적하는 방식은 경기장 표시가 계속 보이고 카메라 움직임이 작을 때만 끝까지 버틴다는 것을 확인하고, 그 조건에 맞는 영상으로 파이프라인 전체를 검증했습니다. 일반 중계 화면에는 프레임마다 경기장 라인을 다시 찾는 방식이 필요합니다.
+
+</details>
+
 ## 데이터 출처
 
 - 영상: [YouTube](https://www.youtube.com/watch?v=1lhkwZc7M5Q&t=149s) 2:29부터 약 7.6초 구간 (49ers @ Rams, 터치다운 패스) — 저작권 때문에 영상 파일은 레포에 포함하지 않습니다.
+- 이전 버전 영상: [King Henry just showing off on SNF](https://www.youtube.com/watch?v=4T1pKwU7PuA) — NFL 공식 YouTube
 - 모델: [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) (COCO 사전학습 가중치)
 
 ## License
