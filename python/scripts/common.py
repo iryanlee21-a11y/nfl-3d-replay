@@ -9,4 +9,4 @@ H_CAMERA = DATA / "camera_H_to0.npy"     # 02: 각 프레임 -> 0번 프레임 �
 H_FIELD = DATA / "H_field_from0.npy"     # 03: 0번 프레임 -> 경기장(야드) 호모그래피
 FIELD_RAW = DATA / "field_tracks_raw.csv"  # 04: 경기장 좌표 (필터 전)
 FIELD = DATA / "field_tracks.csv"        # 05: 경기장 좌표 (평활화) -> Unity 입력
-LAST_RELIABLE_FRAME = 200                # 카메라 보정이 믿을 만한 마지막 프레임 (README '한계' 참고)
+LAST_RELIABLE_FRAME = 195                # 6.5초 이후는 득점 세리머니(빠른 줌인)라 제외

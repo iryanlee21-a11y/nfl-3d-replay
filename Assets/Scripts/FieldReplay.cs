@@ -4,8 +4,8 @@ using UnityEngine;
 /// <summary>
 /// 경기장 좌표 추적 데이터를 재생한다.
 /// - ID별 마커를 하나씩 유지하고 프레임 사이를 보간해 이동
-/// - 팀 색 (BUF 흰색 / BAL 보라색)
-/// - 야드 라인·해시마크·사이드라인을 직접 그림 (1 Unity unit = 1 yard)
+/// - 팀 색 (SF 빨강 / LAR 흰색)
+/// - 엔드존·야드 라인·해시마크·사이드라인을 직접 그림 (1 Unity unit = 1 yard)
 /// 조작: Space 재생/정지, ←/→ 한 프레임 이동, R 처음으로, ↑/↓ 재생 속도,
 ///       C 위에서 보기 ↔ 선수 시점, Tab 시점 선수 변경
 /// </summary>
@@ -13,22 +13,22 @@ public class FieldReplay : MonoBehaviour
 {
     [Header("Data")]
     public string csvPath = "python/data/field_tracks.csv";
-    public float sourceFps = 29.97f;
+    public float sourceFps = 30f;
 
     [Header("Markers")]
     public GameObject playerPrefab;          // 비워두면 캡슐을 자동 생성
-    public Color bufColor = Color.white;
-    public Color balColor = new Color(0.45f, 0.2f, 0.7f);
+    public Color sfColor = new Color(0.8f, 0.1f, 0.1f);
+    public Color larColor = Color.white;
 
     [Header("Field (yards)")]
-    public float fieldXMin = -30f, fieldXMax = 12f;
-    public float lineOfScrimmageX = 2.1f;
+    public float fieldXMin = -10f, fieldXMax = 25f;   // X = 골라인에서의 거리, 엔드존은 -10 ~ 0
+    public float lineOfScrimmageX = 14f;
     public bool drawField = true;
 
     [Header("Cameras")]
     public Camera topCamera;                 // 위에서 보는 카메라
     public CameraRig povRig;                 // 선수 시점 카메라
-    public int povPlayerId = 3;              // 기본: 22번 러닝백(144프레임 이후 ID 3)
+    public int povPlayerId = 5;              // 기본: 터치다운을 받은 49ers 리시버 (ID 5)
 
     const float FieldWidth = 53.33f;
     Dictionary<int, List<FieldTracksLoader.Sample>> data;
@@ -94,7 +94,7 @@ public class FieldReplay : MonoBehaviour
             velocity[kv.Key] = wasActive ? Vector3.Lerp(prevV, p - m.position, 0.2f) : Vector3.zero;   // 처음 나타난 프레임은 속도 0
             m.position = p;
             m.gameObject.SetActive(true);
-            SetColor(m, s.team == "BUF" ? bufColor : balColor);
+            SetColor(m, s.team == "SF" ? sfColor : larColor);
             seen.Add(kv.Key);
         }
         foreach (var kv in markers)
@@ -167,9 +167,20 @@ public class FieldReplay : MonoBehaviour
         grass.transform.localScale = new Vector3((fieldXMax - fieldXMin + 10f) / 10f, 1f, (FieldWidth + 10f) / 10f);
         grass.GetComponent<Renderer>().material.color = new Color(0.2f, 0.45f, 0.15f);
 
+        if (fieldXMin < 0f)                  // 엔드존
+        {
+            var ez = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            ez.transform.SetParent(root);
+            Vector3 ec = ToWorld(new Vector2(fieldXMin / 2f, FieldWidth / 2f));
+            ez.transform.position = new Vector3(ec.x, 0f, ec.z);
+            ez.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            ez.transform.localScale = new Vector3(-fieldXMin, FieldWidth, 1f);
+            ez.GetComponent<Renderer>().material.color = new Color(0.1f, 0.2f, 0.6f);
+        }
         for (int x = Mathf.CeilToInt(fieldXMin); x <= fieldXMax; x++)
         {
-            if (x % 5 == 0) Line(root, new Vector2(x, 0), new Vector2(x, FieldWidth), 0.15f, Color.white);
+            if (x % 5 == 0) Line(root, new Vector2(x, 0), new Vector2(x, FieldWidth), x == 0 ? 0.3f : 0.15f, Color.white);
+            if (x < 0) continue;             // 엔드존에는 해시마크 없음
             foreach (float yh in new[] { 0.6f, 23.58f, 29.75f, FieldWidth - 0.6f })
                 Line(root, new Vector2(x, yh - 0.3f), new Vector2(x, yh + 0.3f), 0.08f, Color.white);
         }

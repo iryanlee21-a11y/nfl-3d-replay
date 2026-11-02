@@ -1,6 +1,7 @@
 """5단계: 궤적 다듬기 -> Unity 입력
 1) 10프레임 이하 공백은 선형 보간  2) Savitzky-Golay 필터(창 21, 2차)로 떨림 제거
 3) 0.5초(15프레임) 미만 구간 제거  4) 팀 라벨 15프레임 다수결로 정리
+5) 한 ID 안에서 팀이 바뀌면(추적기가 겹친 다른 선수에게 ID를 넘긴 경우) 그 지점에서 다른 ID로 나눔
 출력: data/field_tracks.csv (frame, id, team, X, Y)"""
 import numpy as np, pandas as pd
 from scipy.signal import savgol_filter
@@ -30,10 +31,15 @@ for pid, g in df.sort_values("frame").groupby("id"):
         w = min(21, len(s) - (1 - len(s) % 2))
         s = s.copy()
         s["X"], s["Y"] = savgol_filter(s.X, w, 2), savgol_filter(s.Y, w, 2)
-        isbuf = (s.team == "BUF").astype(float).rolling(15, center=True, min_periods=1).mean()
-        s["team"], s["id"] = np.where(isbuf > .5, "BUF", "BAL"), pid
+        issf = (s.team == "SF").astype(float).rolling(15, center=True, min_periods=1).mean()
+        s["team"], s["id"] = np.where(issf > .5, "SF", "LAR"), pid
         rows.append(s.reset_index().rename(columns={"index": "frame"}))
-res = pd.concat(rows)[["frame", "id", "team", "X", "Y"]].sort_values(["frame", "id"]).round(3)
+res = pd.concat(rows)[["frame", "id", "team", "X", "Y"]].sort_values(["id", "frame"])
+seg = (res.team != res.groupby("id").team.shift()).groupby(res.id).cumsum() - 1   # ID 안에서 팀이 바뀐 횟수
+n_split = int((seg > 0).groupby(res.id).any().sum())
+res["id"] = np.where(seg > 0, res.id * 100 + seg, res.id)                          # 첫 구간은 원래 ID 유지
+res = res.sort_values(["frame", "id"]).round(3)
+print(f"팀이 바뀐 ID {n_split}개를 나눔")
 res.to_csv(FIELD, index=False)
 m = df.merge(res, on=["frame", "id"], suffixes=("_r", "_s"))
 d = np.hypot(m.X_r - m.X_s, m.Y_r - m.Y_s)

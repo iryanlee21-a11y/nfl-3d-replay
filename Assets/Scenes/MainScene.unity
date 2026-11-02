@@ -551,17 +551,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   csvPath: python/data/field_tracks.csv
-  sourceFps: 29.97
+  sourceFps: 30
   playerPrefab: {fileID: 0}
-  bufColor: {r: 1, g: 1, b: 1, a: 1}
-  balColor: {r: 0.45, g: 0.2, b: 0.7, a: 1}
-  fieldXMin: -30
-  fieldXMax: 12
-  lineOfScrimmageX: 2.1
+  sfColor: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+  larColor: {r: 1, g: 1, b: 1, a: 1}
+  fieldXMin: -10
+  fieldXMax: 25
+  lineOfScrimmageX: 14
   drawField: 1
   topCamera: {fileID: 330585545}
   povRig: {fileID: 1052087304}
-  povPlayerId: 3
+  povPlayerId: 5
 --- !u!1 &1306651520
 GameObject:
   m_ObjectHideFlags: 0

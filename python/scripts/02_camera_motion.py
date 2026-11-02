@@ -1,6 +1,6 @@
 """2단계: 카메라 움직임 추정
-중계 카메라는 고정 위치에서 회전·줌만 하므로, 연속한 두 프레임의 관계를 호모그래피 하나로 표현할 수 있다.
-배경 특징점(선수 박스와 스코어보드 제외)을 광류로 따라가 프레임 간 호모그래피를 구하고,
+경기장 바닥은 평면이므로, 카메라가 움직이거나 줌해도 연속한 두 프레임의 바닥은 호모그래피 하나로 이어진다.
+바닥 특징점(선수 박스 제외, 관중석·골대 등 바닥 밖 물체 제외)을 광류로 따라가 프레임 간 호모그래피를 구하고,
 이를 누적해 모든 프레임을 0번 프레임 좌표계로 맞춘다.
 출력: data/camera_H_to0.npy (N x 3 x 3), --panorama 옵션 시 media/panorama.jpg"""
 import sys, cv2, numpy as np, pandas as pd
@@ -16,8 +16,11 @@ while True:
     frames.append(img)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     h, w = gray.shape
-    mask = np.full((h, w), 255, np.uint8)
-    mask[int(h * 0.80):, :] = 0                                   # 스코어보드
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)                      # 경기장 바닥(잔디·엔드존·흰 선)만 사용:
+    field = (((hsv[..., 0] > 30) & (hsv[..., 0] < 90) & (hsv[..., 1] > 60)) |   # 관중석·골대처럼 바닥 평면에
+             ((hsv[..., 0] > 100) & (hsv[..., 0] < 130) & (hsv[..., 1] > 120)))  # 없는 물체는 시점에 따라 다르게
+    field = cv2.morphologyEx(field.astype(np.uint8) * 255, cv2.MORPH_CLOSE, np.ones((25, 25), np.uint8))  # 움직여 보정을 망친다
+    mask = cv2.erode(field, np.ones((15, 15), np.uint8))
     for r in df[df.frame == f].itertuples():                       # 사람(움직이는 물체)
         mask[max(0, int(r.y1) - 10):int(r.y2) + 10, max(0, int(r.x1) - 10):int(r.x2) + 10] = 0
     if prev is not None:
@@ -34,7 +37,7 @@ print(f"saved {len(H_to0)} homographies -> {H_CAMERA.name}")
 
 if "--panorama" in sys.argv:   # 검증용: 보정 구간 프레임들을 0번 좌표계로 이어 붙인다
     H = np.array(H_to0); idx = range(0, LAST_RELIABLE_FRAME + 1, 10)
-    h, w = int(frames[0].shape[0] * 0.8), frames[0].shape[1]
+    h, w = int(frames[0].shape[0]), frames[0].shape[1]
     c = np.float32([[0, 0], [w, 0], [w, h], [0, h]]).reshape(-1, 1, 2)
     allc = np.concatenate([cv2.perspectiveTransform(c, H[i]) for i in idx])
     (x0, y0), (x1, y1) = allc.min(axis=(0, 1)), allc.max(axis=(0, 1))
